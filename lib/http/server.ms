@@ -36,7 +36,7 @@ export class Server {
       proxy.end();
     } else {
       req.on('data', #{ proxy.write($1) });
-      req.on('end', #{ proxy.end() });
+      req.on('end',  #{ proxy.end() });
     }
   }
 
@@ -48,10 +48,8 @@ export class Server {
       for (var k in this.requestOptions) options[k] = options[k] || this.requestOptions[k];
     }
 
-    var realOptions = { path: path };
-    for (var k in options) realOptions[k] = realOptions[k] || options[k];
-
-    var req = http.request(realOptions);
+    options.path = path;
+    var req = http.request(options);
     if (cb) {
       utils.handleResponse(req, cb);
       if (method == 'GET') req.end();

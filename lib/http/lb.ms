@@ -2,7 +2,7 @@ var Server = require('./server');
 export class LB {
   function initialize(filter) {
     this.servers = {};
-    this.count = 0;
+    this.count   = 0;
     this.useFilter(filter);
 
     this.healthy = {};
@@ -61,9 +61,8 @@ export class LB {
   }
 
   function buildPool() {
-    var pool = []; 
-    for (var k in this.healthy) pool.push(this.healthy[k]);
-    this.pool = pool;
+    this.pool.length = 0;
+    for (var k in this.healthy) this.pool.push(this.healthy[k]);
   }
 
 }
