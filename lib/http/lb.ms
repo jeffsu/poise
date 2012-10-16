@@ -10,10 +10,12 @@ export class LB {
   }
 
   function match(req) {
-    return this.filter(req);
+    return this.filter ? this.filter(req) : true;
   }
 
   function useFilter(filter) {
+    if (!filter) return;
+
     if (typeof filter == 'function') {
       this.filter = filter;
     } else {
@@ -36,6 +38,7 @@ export class LB {
 
     var isHealthy = true;
     server.on('unhealthy', #{ 
+      console.log('unhealthy');
       isHealthy = false;
       delete self.healthy[name];
       self.buildPool();
@@ -48,15 +51,18 @@ export class LB {
       self.healthy[name] = server;
       self.buildPool();
     });
+
+    return server;
   }
 
-  function getServer() {
-    var i = this.count++ % this.pool.length;
+  function getServer(inc) {
+    var i = this.count % this.pool.length;
+    if (inc) this.count++;
     return this.pool[i];
   }
 
   function handle(req, res) {
-    var server = this.getServer();
+    var server = this.getServer(true);
     return server ? server.handle(req, res) : false;
   }
 

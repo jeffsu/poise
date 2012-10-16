@@ -19,7 +19,7 @@ class Utils {
     ret = ret || { headers: {} };
 
     var url = URL.parse(url);
-    ret.host = url.host;
+    ret.host = url.hostname;
     ret.port = url.port;
     ret.path = url.path;
     ret.auth = url.auth;

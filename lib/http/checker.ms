@@ -5,14 +5,14 @@ export class Checker {
   include $m.EventEmitter;
 
   private {
-    var DEFAULT_INTERVAL = 3;
+    var DEFAULT_INTERVAL = 3000;
   }
 
   function initialize(url, options, cb) {
     this.options  = utils.parseHTTPOptions(url);
     this.interval = options.interval || DEFAULT_INTERVAL;
     this.stat     = 'stopped';
-    this.isHealthy = false;
+    this.isHealthy = null;
 
     if (this.options) {
       cb = cb || #(err, body, res) {
@@ -21,7 +21,7 @@ export class Checker {
       };
 
       this.getError = cb;
-    } 
+    }
 
     this.start();
   }
@@ -29,9 +29,16 @@ export class Checker {
   function checkHealth(cb) {
     var req = http.request(this.options);
     utils.handleResponse(req, #(err, body, res) { 
+      var oldHealth = self.isHealthy;
+
       var error = self.getError(err, body, res);
       self.isHealthy = !error;
       if (error) self.lastError = error;
+
+      if (oldHealth !== self.isHealthy) {
+        if (self.isHealthy) self.emit('healthy');
+        else self.emit('unhealthy', error);
+      }
     });
     req.end();
   }
