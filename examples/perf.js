@@ -12,6 +12,7 @@ www.listen(3000);
 
 // create a back for www
 var wwwBack = www.back('www');
+wwwBack.balance('resource');
 
 // use resource balancing 
 wwwBack.balance({ algorithm: 'resource', key: function (req) { return req.url } });
