@@ -1,5 +1,4 @@
 # Poised - HTTP Load Balancer in Node
-{:toc}
 
 # Why not HAProxy?
 Well, if you can get away with HAProxy, you should!  If you need more... read on.
