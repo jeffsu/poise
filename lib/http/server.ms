@@ -10,7 +10,22 @@ export class Server {
     this.requestOptionMethods = {};
 
     this.options = options || {};
+    this.count   = 0;
+
+    this.requestCount = 0;
+    this.requestTime  = 0;
+
     this.interval = this.options.interval || 3000;
+  }
+
+  function inc() {
+    this.count++;
+  }
+
+  // average response time
+  function art() {
+    if (this.requestCount == 0) return 0;
+    return this.requestTime / this.requestCount;
   }
 
   function health(url, options, cb) {
@@ -27,12 +42,16 @@ export class Server {
   }
 
   function handle(req, res) {
+    this.requestCount++;
+
+    var startTime = (new Date).getTime();
     var proxy = this.request(req);
 
     req.on('error', #{ proxy.abort(); });
 
     proxy.on('response', #(proxyRes) {
       res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      self.requestTime += (new Date).getTime() - startTime;
 
       proxyRes.on('data', #{ res.write($1) });
       proxyRes.on('end',  #{ res.end($1) });
@@ -66,6 +85,15 @@ export class Server {
     }
 
     return req;
+  }
+
+  function toString(indent) {
+    indent = indent || "";
+    var ret = indent + "SERVER: " + this.name + "\n";
+    ret += indent + "  healthy:       " + (this.isHealthy() ? 'yes' : 'no') + "\n";
+    ret += indent + "  avg resp time: " + (this.art() + 'ms') + "\n";
+    ret += indent + "  request count: " + (this.count) + "\n";
+    return ret;
   }
 }
 

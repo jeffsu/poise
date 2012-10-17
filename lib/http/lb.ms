@@ -1,74 +1,87 @@
-var Server = require('./server');
-export class LB {
-  function initialize(filter) {
+
+class Base {
+  function initialize(options) {
+    this.options = options || {};
     this.servers = {};
-    this.count   = 0;
-    this.useFilter(filter);
-
-    this.healthy = {};
-    this.pool    = [];
+    this.healthy = [];
+    this.init();
+    this.rebalance(this);
   }
 
-  function match(req) {
-    return this.filter ? this.filter(req) : true;
-  }
-
-  function useFilter(filter) {
-    if (!filter) return;
-
-    if (typeof filter == 'function') {
-      this.filter = filter;
-    } else {
-      this.filter = #(req) {
-        var headers = req.headers;
-        for (var k in filter) {
-          var val = headers[k];
-          if (val && val.match(filter[k])) return true;
-        }
-        return false;
-      };
+  function rebalance(back) {
+    this.healthy.length = 0;
+    for (var name in back.servers) {
+      var server = back.servers[name];
+      if (server.isHealthy()) this.healthy.push(name);
     }
+    this.shuffle(back);
   }
 
-  function server(name, reqOptions, options) {
-    var server = new Server(reqOptions, options); 
-    this.healthy[name] = server;
-    this.servers[name] = server;
-    this.buildPool();
+  function clear() { }
+  function shuffle() { }
+}
 
-    var isHealthy = true;
-    server.on('unhealthy', #{ 
-      console.log('unhealthy');
-      isHealthy = false;
-      delete self.healthy[name];
-      self.buildPool();
-    });
+public class RoundRobin extends Base {
+  function init() {
+    this.iterator = 0;
+  }
 
-    server.on('healthy', #{
-      if (isHealthy) return;
-
-      isHealthy = true;
-      self.healthy[name] = server;
-      self.buildPool();
-    });
-
+  function resolve(back, inc) {
+    this.iterator++;
+    var serverName = this.healthy[this.iterator % this.healthy.length];
+    var server     = back.healthy[serverName];
+    if (inc && server) server.inc();
     return server;
   }
+}
 
-  function getServer(inc) {
-    var i = this.count % this.pool.length;
-    if (inc) this.count++;
-    return this.pool[i];
+public class Resource extends Base {
+
+}
+
+public class Weighted extends RoundRobin {
+  function init() {
+    this.iterator = 0;
+    this.subIterator = 0;
+    this.weights = [];
+    this.subMax  = 0;
   }
 
-  function handle(req, res) {
-    var server = this.getServer(true);
-    return server ? server.handle(req, res) : false;
+  function clear() {
+    if (this.intervalId) clearInterval(this.intervalId);
+    this.intervalId = null;
   }
 
-  function buildPool() {
-    this.pool.length = 0;
-    for (var k in this.healthy) this.pool.push(this.healthy[k]);
+  function shuffle(back) {
+    var total = 0;
+    var n = this.healthy.length;
+
+    this.weights.length = 0;
+
+    foreach (var name:i in this.healthy) {
+      var server = back.servers[name];
+      var art = server.art(); 
+      total += art;
+      this.weights.push(art);
+    }
+
+    var average = total / n;
+
+    foreach (var n:i in this.weights) 
+      this.weights[i] = Math.round(average/n);
+  }
+
+  function resolve(inc) {
+    if (!this.current || (this.subIterator > this.subMax)) {
+      this.subIterator = 1;
+      var idx = this.iterator % this.healthyLength;
+      this.current = this.healthy[idx];
+      this.subMax  = this.weights[idx] || 0;
+      this.iterator++;
+    }
+
+    if (inc  && this.current) this.current.inc();
+    return this.current;
   }
 
 }
