@@ -7,20 +7,18 @@ export class Back {
     this.count   = 0;
     this.useFilter(filter);
 
-    this.healthy = {};
-    this.pool    = [];
-    this.lb = new lb.RoundRobin();
+    this.lb = new lb.RoundRobin(this);
   }
 
   function balance(type, options) {
     if (this.lb) this.lb.clear();
 
     if (type == 'roundrobin') {
-      this.lb = new lb.RoundRobin(options);
+      this.lb = new lb.RoundRobin(this, options);
     }
 
     else if (type == 'weighted') {
-      this.lb = new lb.Weighted(options);
+      this.lb = new lb.Weighted(this, options);
     }
 
     this.lb.rebalance(this);
@@ -52,25 +50,11 @@ export class Back {
   function server(name, reqOptions, options) {
     var server = new Server(reqOptions, options); 
     server.name = name;
-    this.healthy[name] = server;
     this.servers[name] = server;
     this.lb.rebalance(self);
 
-    var isHealthy = true;
-    server.on('unhealthy', #{ 
-      console.log('unhealthy');
-      isHealthy = false;
-      delete self.healthy[name];
-      self.lb.rebalance(self);
-    });
-
-    server.on('healthy', #{
-      if (isHealthy) return;
-
-      isHealthy = true;
-      self.healthy[name] = server;
-      self.lb.rebalance(self);
-    });
+    server.on('unhealthy', #{ self.lb.rebalance(); });
+    server.on('healthy', #{ self.lb.rebalance(); });
 
     return server;
   }
@@ -87,6 +71,8 @@ export class Back {
   function toString(indent) {
     indent = indent || "";
     var ret = indent + "BACK: " + this.name + "\n";
+    ret += this.lb.toString(indent + "  ");
+
     for (var name in this.servers) 
       ret += this.servers[name].toString(indent + "  ");
     return ret;
