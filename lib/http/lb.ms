@@ -46,7 +46,25 @@ public class RoundRobin extends Base {
 }
 
 public class Resource extends Base {
+  private {
+    var crypto = require('crypto');
+  }
 
+  function resolve(inc) {
+
+  }
+
+  function buff2hash(buff, part) {
+    var hash = buff[part * 4 + 3] << 24 |
+            buff[part * 4 + 2] << 16 |
+            buff[part * 4 + 1] << 8 |
+            buff[part * 4];
+    return hash >>> 0;
+  }
+
+  function toInt(string) {
+    return this.buff2hash(new Buffer(crypto.createHash('md5').update(string).digest()), 0);
+  }
 }
 
 public class Weighted extends RoundRobin {
