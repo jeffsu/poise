@@ -28,6 +28,10 @@ export class Server {
     return this.requestTime / this.requestCount;
   }
 
+  function averageResponseTime() {
+    return this.art();
+  }
+
   function health(url, options, cb) {
     this.checker = new Checker(url, options || {}, cb);
     this.checker.start();

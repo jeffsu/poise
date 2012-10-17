@@ -2,6 +2,14 @@ var Server = require('./server');
 var lb     = require('./lb');
 
 export class Back {
+  private {
+    var LB_LOOKUP = {
+      resource:   lb.Resource,
+      roundrobin: lb.RoundRobin,
+      weighted:   lb.Weighted
+    };
+  }
+
   function initialize(filter) {
     this.servers = {};
     this.count   = 0;
@@ -10,20 +18,20 @@ export class Back {
     this.lb = new lb.RoundRobin(this);
   }
 
-  function balance(type, options) {
+  function balance(options) {
     if (this.lb) this.lb.clear();
 
-    if (type == 'roundrobin') {
-      this.lb = new lb.RoundRobin(this, options);
+    var algo = options.algorithm;
+
+    if (algo in LB_LOOKUP) {
+      this.lb = new LB_LOOKUP[algo](this, options);
+      this.lb.rebalance(this);
+      return this.lb;
     }
-
-    else if (type == 'weighted') {
-      this.lb = new lb.Weighted(this, options);
+    
+    else {
+      throw "Invalid load balancer type";
     }
-
-    this.lb.rebalance(this);
-
-    return this.lb;
   }
 
   function match(req) {
@@ -51,7 +59,7 @@ export class Back {
     var server = new Server(reqOptions, options); 
     server.name = name;
     this.servers[name] = server;
-    this.lb.rebalance(self);
+    this.lb.rebalance(this);
 
     server.on('unhealthy', #{ self.lb.rebalance(); });
     server.on('healthy', #{ self.lb.rebalance(); });
@@ -59,12 +67,23 @@ export class Back {
     return server;
   }
 
-  function resolve(inc) {
-    return this.lb.resolve(this, inc);
+  function evict(name) {
+    var server = this.servers[name];
+    if (!server) return;
+
+    delete this.servers[name];
+    server.removeAllListeners('unhealthy');
+    server.removeAllListeners('healthy');
+
+    this.lb.rebalance(this);
+  }
+
+  function resolve(req, inc) {
+    return this.lb.resolve(req, inc);
   }
 
   function handle(req, res) {
-    var server = this.resolve(true);
+    var server = this.resolve(req, true);
     return server ? server.handle(req, res) : false;
   }
 

@@ -4,13 +4,13 @@ var domain = require('domain');
 
 export class Front {
   function initialize(options) {
-    this.backs  = {};
-    this.list   = [];
+    this.backs   = {};
+    this.list    = [];
     this.options = options;
   }
 
   function back(name, filter) {
-    var back = new Back(filter); 
+    var back  = new Back(filter); 
     back.name = name;
     this.list.push(back);
     return this.backs[name] = back;
@@ -24,6 +24,7 @@ export class Front {
       var back = this.backs[name];
       ret += back.toString(indent + "  ");
     }
+
     return ret;
   }
 
