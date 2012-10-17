@@ -2,6 +2,15 @@ var Server = require('./server');
 var lb     = require('./lb');
 
 export class Back {
+  private {
+    var LB_LOOKUP = {
+      resource:   lb.Resource,
+      roundrobin: lb.RoundRobin,
+      weighted:   lb.Weighted
+    };
+
+  }
+
   function initialize(filter) {
     this.servers = {};
     this.count   = 0;
@@ -13,17 +22,15 @@ export class Back {
   function balance(type, options) {
     if (this.lb) this.lb.clear();
 
-    if (type == 'roundrobin') {
-      this.lb = new lb.RoundRobin(this, options);
+    if (type in LB_LOOKUP) {
+      this.lb = new LB_LOOKUP[type](this, options);
+      this.lb.rebalance(this);
+      return this.lb;
+    } 
+    
+    else {
+      throw "Invalid load balancer type";
     }
-
-    else if (type == 'weighted') {
-      this.lb = new lb.Weighted(this, options);
-    }
-
-    this.lb.rebalance(this);
-
-    return this.lb;
   }
 
   function match(req) {
@@ -59,12 +66,12 @@ export class Back {
     return server;
   }
 
-  function resolve(inc) {
-    return this.lb.resolve(this, inc);
+  function resolve(req, inc) {
+    return this.lb.resolve(req, inc);
   }
 
   function handle(req, res) {
-    var server = this.resolve(true);
+    var server = this.resolve(req, true);
     return server ? server.handle(req, res) : false;
   }
 

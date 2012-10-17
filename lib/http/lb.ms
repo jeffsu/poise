@@ -1,3 +1,4 @@
+var crypto = require('crypto');
 
 class Base {
   function initialize(back, options) {
@@ -37,7 +38,7 @@ public class RoundRobin extends Base {
     this.iterator = 0;
   }
 
-  function resolve(inc) {
+  function resolve(req, inc) {
     this.iterator++;
     var server = this.healthy[this.iterator % this.healthy.length];
     if (inc && server) server.inc();
@@ -46,6 +47,31 @@ public class RoundRobin extends Base {
 }
 
 public class Resource extends Base {
+
+  function init(options) {
+    this.getKey = this.options.key || #(req) { => req.url };
+  }
+
+  function resolve(req, inc) {
+    var server = this.healthy[this.toInt(this.getKey(req)) % this.healthy.length];
+    if (inc && server) server.inc();
+    return server;
+  }
+
+  function buffToInt(buff, part) {
+    var hash = 
+      buff[part * 4 + 3] << 24 |
+      buff[part * 4 + 2] << 16 |
+      buff[part * 4 + 1] << 8 |
+      buff[part * 4];
+
+    return hash >>> 0;
+  }
+
+  function toInt(key) {
+    var ret = this.buffToInt(new Buffer(crypto.createHash('md5').update(key).digest()), 0);
+    return ret;
+  }
 
 }
 
@@ -81,7 +107,7 @@ public class Weighted extends RoundRobin {
       indent + "  weights: " + JSON.stringify(this.weights) + "\n";
   }
 
-  function resolve(inc) {
+  function resolve(req, inc) {
     if (!this.current || (this.subIterator > this.subMax)) {
       this.subIterator = 1;
       var idx = this.iterator % this.healthy.length;
