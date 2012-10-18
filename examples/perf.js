@@ -12,10 +12,9 @@ www.listen(3000);
 
 // create a back for www
 var wwwBack = www.back('www');
-wwwBack.balance('resource');
 
 // use resource balancing 
-wwwBack.balance({ algorithm: 'resource', key: function (req) { return req.url } });
+wwwBack.balance({ algorithm: 'weighted', key: function (req) { return req.url } });
 
 // add a server to wwwBack
 var server = wwwBack.server('server1', 'http://127.0.0.1:3001/');
