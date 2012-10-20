@@ -50,13 +50,17 @@ export class Checker {
   function start() {
     this.stat = 'running';
 
+    function run() {
+      self.checkHealth(beat);
+    }
+
     function beat(err, pass) {
       if (!err) self.isHealthy = pass;
       if (self.stat != 'running') return;
-      setTimeout(#{ self.checkHealth(beat) }, self.interval);
+      setTimeout(run, self.interval);
     }
 
-    this.checkHealth(beat);
+    run();
   }
 
 

@@ -18,6 +18,10 @@ export class Back {
     this.lb = new lb.RoundRobin(this);
   }
 
+  function backup() {
+    return this._backup = new KLASS(); 
+  }
+
   function balance(options) {
     if (this.lb) this.lb.clear();
 
@@ -79,7 +83,8 @@ export class Back {
   }
 
   function resolve(req, inc) {
-    return this.lb.resolve(req, inc);
+    var server = this.lb.resolve(req, inc);
+    return (!server && this._backup) ? this._backup.resolve() : server;
   }
 
   function handle(req, res) {

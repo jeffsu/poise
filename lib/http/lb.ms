@@ -1,4 +1,3 @@
-
 class Base {
   function initialize(back, options) {
     this.options = options || {};
@@ -126,5 +125,4 @@ public class Weighted extends RoundRobin {
     if (inc  && this.current) this.current.inc();
     return this.current;
   }
-
 }

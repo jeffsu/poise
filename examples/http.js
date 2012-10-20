@@ -1,5 +1,6 @@
-var poise = require('../lib/index');
-var www   = poise.http.front('www');
+var poised = require('../lib/index');
+var http   = poised.http();
+var www    = http.front('www');
 www.listen(3000);
 
 var staticBack = www.back('www', { host: /^localhost/ });
