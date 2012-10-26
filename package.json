@@ -4,7 +4,8 @@
   "description": "Load Balancer for running standalone or within a node process",
   "main": "lib/index.js",
   "dependencies": {
-    "mochiscript": "~0.6.14"
+    "mochiscript": "~0.6.14",
+    "upbeat-health": "0.0.2"
   },
   "devDependencies": {},
   "scripts": {

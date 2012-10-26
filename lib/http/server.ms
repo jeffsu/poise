@@ -1,6 +1,6 @@
 var utils = require('./utils');
 var http  = require('http');
-var checker = require('./checker');
+var health = require('upbeat-health');
 
 export class Server {
   include $m.EventEmitter;
@@ -33,16 +33,19 @@ export class Server {
   }
 
   function health(url, options, cb) {
-    this.checker = new Checker(url, options || {}, cb);
-    this.checker.start();
+    var opts = { url: url };
+    opts.__proto__ = options;
 
-    this.checker.on('healthy', #{ self.emit('healthy') });
+    this.checker = health.checker(health.http(opts));
+    if (cb) this.checker.on('beat', #(err) { cb(err) });
+    
+    this.checker.on('healthy',   #{ self.emit('healthy') });
     this.checker.on('unhealthy', #{ self.emit('unhealthy') });
   }
 
   function isHealthy() {
     if (!this.checker) return true;
-    return this.checker.isHealthy;
+    return this.checker.stat == 'healthy';
   }
 
   function handle(req, res) {
