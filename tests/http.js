@@ -12,12 +12,20 @@ module.exports['test http get proxy'] = function (test, assert) {
 
   setup.step(function () {
     request.get('http://localhost:3001/ok', function (err, res, body) {
-      server.close();
-      assert.equal(body, 'ok');
+      assert.equal(res.statusCode, 200);
       assert.equal(server._count, 1);
+    });
+  });
+
+  setup.step(function () {
+    request.get('http://localhost:3001/notok', function (err, res, body) {
+      server.close();
+      assert.equal(res.statusCode, 500);
+      assert.equal(server._count, 2);
       test.finish();
     });
   });
+
 };
 
 module.exports['test http post proxy'] = function (test, assert) {
@@ -29,12 +37,13 @@ module.exports['test http post proxy'] = function (test, assert) {
   back.server('3001', 'http://localhost:3001');
 
   setup.step(function () {
-    request.post('http://localhost:3001/ok', function (err, res, body) {
+    request.post({ uri: 'http://localhost:3001/ok', body: 'foo' }, function (err, res, body) {
       server.close();
-      assert.equal(body, 'ok');
+      assert.equal(body, 'foo');
       assert.equal(server._count, 1);
       test.finish();
     });
   });
+
 
 };

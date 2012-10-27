@@ -3,13 +3,18 @@ var http = require('http');
 module.exports.http = function () {
   var server = http.createServer(function (req, res) { 
     server._count++;
-    if (req.url == '/ok') {
-      res.writeHead(200);
-      res.end('ok');
-    } else {
-      res.writeHead(500);
-      res.end('notok');
-    }
+
+    var data = "";
+    req.on('data', function (chunk) { data += chunk.toString() });
+    req.on('end', function () { 
+      if (req.url == '/ok') {
+        res.writeHead(200);
+        res.end(data);
+      } else {
+        res.writeHead(500);
+        res.end(data);
+      }
+    });
   });
   server._count = 0;
   return server;
