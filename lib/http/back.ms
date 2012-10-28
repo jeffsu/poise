@@ -23,7 +23,6 @@ export class Back {
 
   function start() {
     this.lb.start();
-    this.intervalId = setInterval(#{ self.lb.shuffle() }, this.options.shuffleInterval);
   }
 
   function stop() {

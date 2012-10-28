@@ -34,7 +34,6 @@ module.exports['test http roundrobin'] = function (test, assert) {
     front.stop();
     test.finish();
   });
-
 };
 
 module.exports['test http roundrobin failover'] = function (test, assert) {
@@ -68,8 +67,6 @@ module.exports['test http roundrobin failover'] = function (test, assert) {
     server2.close();
   });
 
-  setup.step();
-  setup.step();
 
   setup.step(function () {
     for (var i=0; i<10; i++) 
@@ -88,3 +85,4 @@ module.exports['test http roundrobin failover'] = function (test, assert) {
     test.finish();
   });
 };
+

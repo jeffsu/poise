@@ -1,8 +1,10 @@
 class Base {
   function initialize(back, options) {
-    this.options = options || {};
-    this.servers = back.servers;
-    this.healthy = [];
+    this.options   = options || {};
+    this.servers   = back.servers;
+    this.interval  = this.options.interval || 10000;
+    this.healthy   = [];
+    this.intervals = [];
     this.init();
     this.start();
     this.rebalance();
@@ -23,11 +25,13 @@ class Base {
            indent + "  options: " + JSON.stringify(this.options) + "\n";
   }
 
-  function start() { }
+  function start() { 
+    this.intervals.push(setInterval(#{ self.shuffle() }, this.interval));
+  }
 
   function stop() {
-    if (this.intervalId) clearInterval(this.intervalId);
-    this.intervalId = null;
+    foreach (var id in this.intervals) clearInterval(id);
+    this.intervals.length = 1;
   }
 
 
@@ -89,10 +93,6 @@ public class Weighted extends RoundRobin {
     this.subIterator = 0;
     this.weights     = [];
     this.subMax      = 0;
-  }
-
-  function start() {
-    this.intervalId = setInterval(#{ self.shuffle() }, 10000);
   }
 
   function shuffle() {

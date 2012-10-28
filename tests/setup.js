@@ -43,7 +43,12 @@ module.exports.close = function (cb) {
   for (var i=0; i<all.length; i++) all[i].close();
 };
 
-var n = 0;
+var stepTime = 0;
 module.exports.step = function (cb) {
-  setTimeout(cb, (++n * 300));
+  if (typeof cb == 'number') {
+    stepTime += cb;
+  } else {
+    stepTime += 300;
+    setTimeout(cb, stepTime);
+  }
 };
