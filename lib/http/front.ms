@@ -1,6 +1,5 @@
 var http = require('http');
 var Back   = require('./back');
-var domain = require('domain');
 
 export class Front {
   function initialize(options) {
@@ -31,20 +30,24 @@ export class Front {
   function listen(port, address) {
     this.port = port;
 
-    var serverDomain = domain.create();
+    this.server = http.createServer(#(req, res) {
+      foreach (var back in self.list)
+        if (back.match(req)) return back.handle(req, res);
 
-    serverDomain.run(#{
-      http.createServer(#(req, res) {
-        var reqd = domain.create();
-        reqd.add(req);
-        reqd.add(res);
-        reqd.on('error', #{ console.log($1); res.end('error'); });
-
-        foreach (var back in self.list)
-          if (back.match(req)) return back.handle(req, res);
-
-        res.send(404);
-      }).listen(port, address);;
+      res.send(404);
     });
+
+    this.server.listen(port, address);;
+    return this.server;
+  }
+
+  function close() {
+    this.stop();
+  }
+
+  function stop() {
+    console.log('stopping front');
+    if (this.server) this.server.close();
+    for (var k in this.backs) this.backs[k].stop();
   }
 }

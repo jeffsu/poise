@@ -22,6 +22,14 @@ export class Server {
     this.count++;
   }
 
+  function stop() {
+    if (this.checker) this.checker.stop();
+  }
+
+  function start() {
+    if (this.checker) this.checker.start();
+  }
+
   // average response time
   function art() {
     if (this.requestCount == 0) return 0;
@@ -36,11 +44,13 @@ export class Server {
     var opts = { url: url };
     opts.__proto__ = options;
 
-    this.checker = health.checker(health.http(opts));
+    this.checker = health.checker(health.http(opts), opts);
     if (cb) this.checker.on('beat', #(err) { cb(err) });
     
+    this.checker.on('beat',      #{ self.emit('beat', $1) });
     this.checker.on('healthy',   #{ self.emit('healthy') });
     this.checker.on('unhealthy', #{ self.emit('unhealthy') });
+    this.checker.start();
   }
 
   function isHealthy() {
@@ -48,7 +58,7 @@ export class Server {
     return this.checker.stat == 'healthy';
   }
 
-  function handle(req, res) {
+  function handle(req, res, cb) {
     this.requestCount++;
 
     var startTime = (new Date).getTime();
@@ -63,6 +73,8 @@ export class Server {
       proxyRes.on('data', #{ res.write($1) });
       proxyRes.on('end',  #{ res.end($1) });
     });
+
+    proxy.on('error', #($1) { if (cb) cb($1) });
 
     if (req.method == 'GET') {
       proxy.end();

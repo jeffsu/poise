@@ -10,12 +10,26 @@ export class Back {
     };
   }
 
-  function initialize(filter) {
+  function initialize(filter, options) {
     this.servers = {};
     this.count   = 0;
     this.useFilter(filter);
+    this.options = options || {};
+    this.options.shuffleInterval = this.options.shuffleInterval || 10000;
 
     this.lb = new lb.RoundRobin(this);
+    this.start();
+  }
+
+  function start() {
+    this.lb.start();
+    this.intervalId = setInterval(#{ self.lb.shuffle() }, this.options.shuffleInterval);
+  }
+
+  function stop() {
+    for (var k in this.servers) this.servers[k].stop();
+    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.lb) this.lb.stop();
   }
 
   function backup() {
@@ -23,7 +37,7 @@ export class Back {
   }
 
   function balance(options) {
-    if (this.lb) this.lb.clear();
+    if (this.lb) this.lb.stop();
 
     var algo = options.algorithm;
 
@@ -66,7 +80,7 @@ export class Back {
     this.lb.rebalance(this);
 
     server.on('unhealthy', #{ self.lb.rebalance(); });
-    server.on('healthy', #{ self.lb.rebalance(); });
+    server.on('healthy',   #{ self.lb.rebalance(); });
 
     return server;
   }

@@ -7,25 +7,27 @@ module.exports['test http get proxy'] = function (test, assert) {
   server.listen(3001);
 
   var front = poised.http().front('main');
+  front.listen(3002);
+
   var back  = front.back('main');
   back.server('3001', 'http://localhost:3001');
 
   setup.step(function () {
-    request.get('http://localhost:3001/ok', function (err, res, body) {
+    request.get('http://localhost:3002/ok', function (err, res, body) {
       assert.equal(res.statusCode, 200);
-      assert.equal(server._count, 1);
+      assert.equal(server.counts.ok, 1);
     });
   });
 
   setup.step(function () {
-    request.get('http://localhost:3001/notok', function (err, res, body) {
+    request.get('http://localhost:3002/notok', function (err, res, body) {
       server.close();
+      front.stop();
       assert.equal(res.statusCode, 500);
-      assert.equal(server._count, 2);
+      assert.equal(server.counts.errors, 1);
       test.finish();
     });
   });
-
 };
 
 module.exports['test http post proxy'] = function (test, assert) {
@@ -33,17 +35,18 @@ module.exports['test http post proxy'] = function (test, assert) {
   server.listen(3001);
 
   var front = poised.http().front('main');
+  front.listen(3002);
+
   var back  = front.back('main');
   back.server('3001', 'http://localhost:3001');
 
   setup.step(function () {
-    request.post({ uri: 'http://localhost:3001/ok', body: 'foo' }, function (err, res, body) {
+    request.post({ uri: 'http://localhost:3002/ok', body: 'foo' }, function (err, res, body) {
+      front.stop();
       server.close();
       assert.equal(body, 'foo');
-      assert.equal(server._count, 1);
+      assert.equal(server.counts.ok, 1);
       test.finish();
     });
   });
-
-
 };
