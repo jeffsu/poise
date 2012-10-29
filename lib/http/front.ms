@@ -46,7 +46,6 @@ export class Front {
   }
 
   function stop() {
-    console.log('stopping front');
     if (this.server) this.server.close();
     for (var k in this.backs) this.backs[k].stop();
   }

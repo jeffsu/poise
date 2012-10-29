@@ -12,7 +12,7 @@
     "request": "*"
   },
   "scripts": {
-    "test": "whiskey 'tests/http.js tests/http-balancing.js'"
+    "test": "whiskey 'tests/http.js tests/http-balancing.js tests/weighted.js tests/resource.js'"
   },
   "keywords": [
     "load",

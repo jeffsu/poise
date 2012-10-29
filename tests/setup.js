@@ -14,9 +14,9 @@ module.exports.http = function (timeout) {
     req.on('data', function (chunk) { data += chunk.toString() });
     req.on('end', function () { 
       setTimeout(function () {
-        if (req.url == '/ok') {
-          server.counts.ok++;
-          res.writeHead(200);
+        if (req.url == '/error') {
+          server.counts.errors++;
+          res.writeHead(500);
           res.end(data);
         } 
 
@@ -27,8 +27,8 @@ module.exports.http = function (timeout) {
         }
         
         else {
-          server.counts.errors++;
-          res.writeHead(500);
+          server.counts.ok++;
+          res.writeHead(200);
           res.end(data);
         }
       }, timeout);
