@@ -14,7 +14,7 @@ another proxy.
 
 # Quick Start
 Here is an example script load balancing 2 http servers:
-```
+```javascript
 var poised = require('poised');
 var http   = poised.http();
 
@@ -32,7 +32,7 @@ Just save this in a file and run "node <file>".
 ## http
 This defines the protocol (only http for now) scope.
 
-```
+```javascript
 var poised = require('poised');
 var http = poised.http();
 ```
@@ -40,7 +40,7 @@ var http = poised.http();
 ## front
 This defines the front end of the proxy.  You should have one
 front for each incomming port you are listening to.
-```
+```javascript
 var www = http.front('www');
 www.listen(80);
 ```
@@ -48,7 +48,7 @@ www.listen(80);
 ## back
 This defines backends to route to.  Here, you can define which cluster
 of servers you want to route to.
-```
+```javascript
 var staticBack = www.back('static', { host: /^static/ });
 var wwwBack    = www.back('www');
 wwwBack.balance({ algorithm: 'weighted' });
@@ -57,7 +57,7 @@ staticBack.balance({ algorithm: 'resource' });
 
 ## server
 This introduces a server if to a back cluster.
-```
+```javascript
 var server1 = wwwBack.server('server1', 'http://localhost:3000');
 server1.health('http://localhost:3000/health');
 
@@ -71,14 +71,14 @@ var server3 = wwwBack.backup('server3', 'http://localhost:3001');
 ## resource
 
 # Advanced Usage
-```
+```javascript
 back.balance({
   algorithm: 'resource', 
   key: function (req) { return req.headers['servername'] }
 });
 ```
 
-```
+```javascript
 function shouldIntroduce(back, name, url) {
   var server = back.server(name, url);
   setTimeout(function () { 
