@@ -3,23 +3,29 @@
   "version": "0.0.0-alpha",
   "description": "Load Balancer for running standalone or within a node process",
   "main": "lib/index.js",
+
   "dependencies": {
-    "mochiscript": "~0.6.14",
-    "upbeat-health": "0.0.3"
+    "mochiscript": "~0.6.15",
+    "upbeat-health": "~0.0.3"
   },
+
   "devDependencies": {
     "whiskey": "*",
     "request": "*"
   },
+
   "scripts": {
     "test": "whiskey 'tests/http.js tests/http-balancing.js tests/weighted.js tests/resource.js'"
   },
+
   "keywords": [
     "load",
     "balancer",
     "scalability",
-    "http"
+    "http",
+    "tcp"
   ],
+
   "author": "Jeff Su",
   "license": "BSD"
 }
