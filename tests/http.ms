@@ -2,7 +2,7 @@ var setup  = require('./setup');
 var poised = require('../');
 var request = require('request');
 
-module.exports['test http get proxy'] = function (test, assert) {
+module.exports['test http get proxy'] = #(test) {
   var server = setup.http(); 
   server.listen(3001);
 
@@ -14,26 +14,26 @@ module.exports['test http get proxy'] = function (test, assert) {
 
   setup.step(function () {
     request.get('http://localhost:3002/ok', function (err, res, body) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(server.counts.ok, 1);
+      test.equal(res.statusCode, 200);
+      test.equal(server.counts.ok, 1);
     });
   });
 
   setup.step(function () {
     request.get('http://localhost:3002/error', function (err, res, body) {
-      assert.equal(res.statusCode, 500);
-      assert.equal(server.counts.errors, 1);
+      test.equal(res.statusCode, 500);
+      test.equal(server.counts.errors, 1);
     });
   });
 
   setup.step(function () {
     server.close();
     front.stop();
-    test.finish();
+    test.done();
   });
 };
 
-module.exports['test http post proxy'] = function (test, assert) {
+module.exports['test http post proxy'] = function (test) {
   var server = setup.http(); 
   server.listen(3001);
 
@@ -45,14 +45,14 @@ module.exports['test http post proxy'] = function (test, assert) {
 
   setup.step(function () {
     request.post({ uri: 'http://localhost:3002/ok', body: 'foo' }, function (err, res, body) {
-      assert.equal(body, 'foo');
-      assert.equal(server.counts.ok, 1);
+      test.equal(body, 'foo');
+      test.equal(server.counts.ok, 1);
     });
   });
 
   setup.step(function () {
     front.stop();
     server.close();
-    test.finish();
+    test.done();
   });
 };

@@ -2,7 +2,7 @@ var setup  = require('./setup');
 var poised = require('../');
 var request = require('request');
 
-module.exports['test http roundrobin'] = function (test, assert) {
+module.exports['test http roundrobin'] = function (test) {
   var server1 = setup.http(); 
   server1.listen(3001);
 
@@ -24,19 +24,19 @@ module.exports['test http roundrobin'] = function (test, assert) {
 
   // should be even
   setup.step(function () {
-    assert.equal(server1.counts.ok, 5);
-    assert.equal(server2.counts.ok, 5);
+    test.equal(server1.counts.ok, 5);
+    test.equal(server2.counts.ok, 5);
   });
 
   setup.step(function () {
     server1.close();
     server2.close();
     front.stop();
-    test.finish();
+    test.done();
   });
 };
 
-module.exports['test http roundrobin failover'] = function (test, assert) {
+module.exports['test http roundrobin failover'] = function (test) {
   setup.reset();
 
   var server1 = setup.http(); 
@@ -59,8 +59,8 @@ module.exports['test http roundrobin failover'] = function (test, assert) {
 
   // should be even
   setup.step(function () {
-    assert.equal(server1.counts.ok, 5);
-    assert.equal(server2.counts.ok, 5);
+    test.equal(server1.counts.ok, 5);
+    test.equal(server2.counts.ok, 5);
   });
 
   setup.step(function () {
@@ -75,14 +75,14 @@ module.exports['test http roundrobin failover'] = function (test, assert) {
 
   // should be even
   setup.step(function () {
-    assert.equal(server1.counts.ok, 15);
-    assert.equal(server2.counts.ok, 5);
+    test.equal(server1.counts.ok, 15);
+    test.equal(server2.counts.ok, 5);
   });
 
   setup.step(function () {
     server1.close();
     front.stop();
-    test.finish();
+    test.done();
   });
 };
 
