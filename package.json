@@ -1,6 +1,6 @@
 {
   "name": "poise",
-  "version": "0.0.0-alpha",
+  "version": "0.0.0-alpha2",
   "description": "Load Balancer for running standalone or within a node process",
   "main": "lib/index.js",
 
@@ -15,7 +15,7 @@
   },
 
   "scripts": {
-    "test": "whiskey 'tests/http.js tests/http-balancing.js tests/weighted.js tests/resource.js'"
+    "test": "node tests"
   },
 
   "keywords": [
