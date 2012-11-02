@@ -15,7 +15,7 @@ module.exports['test http weighted'] = function (test) {
   front.listen(3003);
 
   var back = front.back('main');
-  back.balance({ algorithm: 'weighted', interval: 1000 }) 
+  back.balance({ algorithm: 'weighted' }) 
 
   back.server('3001', 'http://localhost:3001').health('http://localhost:3001/health', { interval: 10 });
   back.server('3002', 'http://localhost:3002').health('http://localhost:3002/health', { interval: 10 });
@@ -35,13 +35,25 @@ module.exports['test http weighted'] = function (test) {
   setup.step(1000);
 
   setup.step(function () {
-    for (var i=0; i<10; i++) 
+    back.servers['3001'].requestTime  = 5;
+    back.servers['3001'].requestCount = 5;
+
+    back.servers['3002'].requestTime  = 10;
+    back.servers['3002'].requestCount = 5;
+
+    server1.counts.ok = 0;
+    server2.counts.ok = 0;
+
+    back.lb.shuffle();
+
+    for (var i=0; i<30; i++) 
       request.get('http://localhost:3003/ok', function () {});
   });
 
   // should be weighted now
   setup.step(function () {
-    test.equal(Math.round(server1.counts.ok / server2.counts.ok), 3);
+    test.equal(server1.counts.ok, 20);
+    test.equal(server2.counts.ok, 10);
   });
 
   setup.step(function () {

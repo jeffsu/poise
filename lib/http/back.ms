@@ -15,7 +15,6 @@ export class Back {
     this.count   = 0;
     this.useFilter(filter);
     this.options = options || {};
-    this.options.shuffleInterval = this.options.shuffleInterval || 10000;
 
     this.lb = new lb.RoundRobin(this);
     this.start();

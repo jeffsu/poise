@@ -108,10 +108,14 @@ public class Weighted extends RoundRobin {
       this.weights.push(art);
     }
 
-    var average = total / n;
+    var avg = total / n;
 
-    foreach (var n:i in this.weights) 
-      this.weights[i] = Math.round(average/n);
+    foreach (var n:i in this.weights)
+      this.weights[i] = Math.round(avg/n);
+
+    this.current = null;
+    this.iterator = 0;
+    this.subIterator = 0;
   }
 
   function toString(indent) {
@@ -120,14 +124,21 @@ public class Weighted extends RoundRobin {
   }
 
   function resolve(req, inc) {
-    if (!this.current || (this.subIterator > this.subMax)) {
-      this.subIterator = 1;
+    if (!this.current) {
+      this.current     = this.healthy[0];
+      this.subIterator = 0;
+      this.iterator++;
+    } 
+    
+    else if (this.subIterator >= this.subMax) {
       var idx = this.iterator % this.healthy.length;
-
       this.current = this.healthy[idx];
       this.subMax  = this.weights[idx] || 0;
+      this.subIterator = 0;
       this.iterator++;
-    }
+    } 
+
+    this.subIterator++;
 
     if (inc  && this.current) this.current.inc();
     return this.current;
