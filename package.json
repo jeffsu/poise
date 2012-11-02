@@ -23,6 +23,7 @@
     "balancer",
     "scalability",
     "http",
+    "haproxy",
     "tcp"
   ],
 
