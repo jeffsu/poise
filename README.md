@@ -1,16 +1,13 @@
 # Poised - HTTP Load Balancer in Node
 
 # Why not HAProxy?
-Well, if you can get away with HAProxy, you should!  If you need more... read on.
+Poise at its core, aims to have most of the featureset that HAPRoxy has.  If you can get away with using HAProxy, you should!  If you need more... read on.
 
 ## More Flexibility
-With poised, you can script load balancing logic as opposed to declaritively configure it.  
-You can also define when to add and evict servers.
+With poised, you can script load balancing logic as opposed to declaritively configure it.  You can also define when to add and evict servers.
 
 ## Node Integration
-Poised can run standalone (see examples), but it can also be integrated into node. If you are running 
-node in your stack, why not just resolve your servers within your actual process instead of going through 
-another proxy.
+Poised can run standalone (see examples), but it can also be integrated into node. If you are running node in your stack, this means you can resolve your servers within your actual process instead of going through another proxy.
 
 # Quick Start
 Here is an example script load balancing 2 http servers:
