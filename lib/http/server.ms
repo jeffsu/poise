@@ -36,6 +36,11 @@ export class Server {
     return this.requestTime / this.requestCount;
   }
 
+  function resetART() {
+    this.requestCount = 0;
+    this.requestTime  = 0;
+  }
+
   function averageResponseTime() {
     return this.art();
   }

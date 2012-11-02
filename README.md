@@ -48,12 +48,21 @@ www.listen(80);
 ## back
 This defines backends to route to.  Here, you can define which cluster
 of servers you want to route to.
+
 ```javascript
 var staticBack = www.back('static', { host: /^static/ });
 var wwwBack    = www.back('www');
 wwwBack.balance({ algorithm: 'weighted' });
 staticBack.balance({ algorithm: 'resource' });
 ```
+
+You can also define backups to backs:
+```javascript
+var backup = back.backup();
+backup.server('server1', 'http://localhost:3001');
+```
+
+This creates a backup to the back.  Backup's abide by the same api as backs. 
 
 ## server
 This introduces a server if to a back cluster.
@@ -66,9 +75,42 @@ var server3 = wwwBack.backup('server3', 'http://localhost:3001');
 ```
 
 # Load balancing algorithms
+
+Load balancing is set on the "back" object and defines how it chooses a server to hand the request to.  By default, load balancing is done using the roundrobin algorithm, but can use several different algorithms.
+
+```
+back.balance({ algorithm: 'weighted', interval: 10000 });
+```
+
+Standard options:
+
+  1. algorithm: algorithm to use for balancing
+  1. interval: the amount of time (in milliseconds) between each "shuffle" or rebalance.  For instance, the above code will recheck and rebalance the ratios on how to distrubute the payload every 10 seconds.
+
+
 ## roundrobin
+
+This is the default way poise balances if none is defined.  The "interval" option is not applicable.
+
+```javascript
+back.balance({ algorithm: 'roundrobin' });
+```
+
 ## weighted
+
+Takes the average response times for each server and redistrubutes load accordingly.  For instance, if a server was twice as fast as another, it would get twice as much traffic.
+
+```javascript
+back.balance({ algorithm: 'weighted', interval: 10000 });
+```
+
 ## resource
+
+Makes requests "stick" to specific servers depending on which attribute to hash by.
+
+```javascript
+back.balance({ algorithm: 'resource', key: function (req) { return req.url } });
+```
 
 # Advanced Usage
 ```javascript

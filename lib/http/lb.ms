@@ -103,6 +103,7 @@ public class Weighted extends RoundRobin {
 
     foreach (var server:i in this.healthy) {
       var art = server.art(); 
+      server.resetART();
       total += art;
       this.weights.push(art);
     }
