@@ -1,17 +1,17 @@
 {
   "name": "poise",
-  "version": "0.0.0-alpha2",
-  "description": "Load Balancer for running standalone or within a node process",
+  "version": "0.0.2",
+  "description": "An HAProxy clone written in node for more flexibility and embedding into a node process.",
   "main": "lib/index.js",
 
   "dependencies": {
-    "mochiscript": "~0.6.15",
+    "mochiscript":   "~0.6.15",
     "upbeat-health": "~0.0.3"
   },
 
   "devDependencies": {
     "nodeunit": "0.7.4",
-    "request": "*"
+    "request":  "*"
   },
 
   "scripts": {
@@ -19,6 +19,7 @@
   },
 
   "keywords": [
+    "haproxy",
     "load",
     "balancer",
     "scalability",
