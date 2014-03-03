@@ -100,6 +100,7 @@ export class Server {
 
     options.path    = req.url;
     options.headers = req.headers;
+    options.headers.host = options.host;
     if (this.options.keepAlive) options.headers.connection = "keep-alive";
 
     var req = http.request(options);
